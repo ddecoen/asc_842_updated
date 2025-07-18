@@ -13,6 +13,19 @@ export interface PreASC842Payment {
   description?: string;
 }
 
+export interface Sublease {
+  id?: string;
+  sublesseeName: string;
+  startDate: string;
+  endDate: string;
+  monthlyIncome?: number;
+  // For variable sublease income
+  incomeSchedule?: PaymentSchedule[];
+  securityDeposit?: number;
+  description?: string;
+  createdAt?: string;
+}
+
 export interface Lease {
   id?: string;
   userId?: string;
@@ -30,6 +43,8 @@ export interface Lease {
   // Pre-ASC 842 payments
   preASC842Payments?: PreASC842Payment[];
   asc842AdoptionDate?: string;
+  // Sublease information
+  subleases?: Sublease[];
   createdAt?: string;
 }
 

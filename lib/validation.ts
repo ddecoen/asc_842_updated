@@ -13,6 +13,27 @@ const preASC842PaymentSchema = z.object({
   description: z.string().optional(),
 });
 
+const subleaseSchema = z.object({
+  sublesseeName: z.string().min(1, 'Sublessee name is required'),
+  startDate: z.string().min(1, 'Sublease start date is required'),
+  endDate: z.string().min(1, 'Sublease end date is required'),
+  monthlyIncome: z.number().positive('Monthly income must be positive').optional(),
+  incomeSchedule: z.array(paymentScheduleSchema).optional(),
+  securityDeposit: z.number().min(0).optional(),
+  description: z.string().optional(),
+}).refine((data) => {
+  return new Date(data.endDate) > new Date(data.startDate);
+}, {
+  message: 'Sublease end date must be after start date',
+  path: ['endDate'],
+}).refine((data) => {
+  // Either monthlyIncome or incomeSchedule must be provided
+  return data.monthlyIncome || (data.incomeSchedule && data.incomeSchedule.length > 0);
+}, {
+  message: 'Either monthly income or income schedule must be provided',
+  path: ['monthlyIncome'],
+});
+
 export const leaseSchema = z.object({
   name: z.string().min(1, 'Lease name is required'),
   startDate: z.string().min(1, 'Start date is required'),
@@ -28,6 +49,8 @@ export const leaseSchema = z.object({
   // Pre-ASC 842 payments
   preASC842Payments: z.array(preASC842PaymentSchema).optional(),
   asc842AdoptionDate: z.string().optional(),
+  // Sublease information
+  subleases: z.array(subleaseSchema).optional(),
 }).refine((data) => {
   return new Date(data.endDate) > new Date(data.startDate);
 }, {

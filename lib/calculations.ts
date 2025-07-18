@@ -157,8 +157,93 @@ export function generateMonthlyEntries(lease: Lease): JournalEntry[] {
       debits: [{ account: 'Amortization Expense', amount: calc.monthlyAmortization }],
       credits: [{ account: 'Accumulated Amortization', amount: calc.monthlyAmortization }],
     });
+
+    // Sublease income entry (if applicable)
+    const subleaseIncome = getSubleaseIncomeForMonth(lease, month - 1);
+    if (subleaseIncome > 0) {
+      entries.push({
+        leaseId: lease.id || '',
+        date: date.toISOString().split('T')[0],
+        type: 'monthly',
+        description: `Month ${month} - Sublease income (${formatCurrency(subleaseIncome)})`,
+        debits: [{ account: 'Cash', amount: subleaseIncome }],
+        credits: [{ account: 'Sublease Income', amount: subleaseIncome }],
+      });
+    }
   }
   
+  return entries;
+}
+
+// Get sublease income for a specific month
+export function getSubleaseIncomeForMonth(lease: Lease, monthIndex: number): number {
+  if (!lease.subleases || lease.subleases.length === 0) {
+    return 0;
+  }
+
+  const startDate = new Date(lease.startDate);
+  const currentDate = new Date(startDate);
+  currentDate.setMonth(currentDate.getMonth() + monthIndex);
+
+  let totalIncome = 0;
+
+  lease.subleases.forEach(sublease => {
+    const subleaseStart = new Date(sublease.startDate);
+    const subleaseEnd = new Date(sublease.endDate);
+
+    // Check if current month falls within sublease period
+    if (currentDate >= subleaseStart && currentDate <= subleaseEnd) {
+      // For now, use simple monthly income (could be enhanced for variable income schedules)
+      totalIncome += sublease.monthlyIncome || 0;
+    }
+  });
+
+  return totalIncome;
+}
+
+// Calculate total sublease income over lease term
+export function calculateTotalSubleaseIncome(lease: Lease): number {
+  if (!lease.subleases || lease.subleases.length === 0) {
+    return 0;
+  }
+
+  const leaseTerm = calculateLeaseTerm(lease.startDate, lease.endDate);
+  let totalIncome = 0;
+
+  for (let month = 0; month < leaseTerm; month++) {
+    totalIncome += getSubleaseIncomeForMonth(lease, month);
+  }
+
+  return Math.round(totalIncome * 100) / 100;
+}
+
+// Generate sublease income journal entries
+export function generateSubleaseEntries(lease: Lease): JournalEntry[] {
+  if (!lease.subleases || lease.subleases.length === 0) {
+    return [];
+  }
+
+  const entries: JournalEntry[] = [];
+  const leaseTerm = calculateLeaseTerm(lease.startDate, lease.endDate);
+
+  for (let month = 1; month <= leaseTerm; month++) {
+    const date = new Date(lease.startDate);
+    date.setMonth(date.getMonth() + month - 1);
+    
+    const monthlyIncome = getSubleaseIncomeForMonth(lease, month - 1);
+    
+    if (monthlyIncome > 0) {
+      entries.push({
+        leaseId: lease.id || '',
+        date: date.toISOString().split('T')[0],
+        type: 'monthly',
+        description: `Month ${month} - Sublease income (${formatCurrency(monthlyIncome)})`,
+        debits: [{ account: 'Cash', amount: monthlyIncome }],
+        credits: [{ account: 'Sublease Income', amount: monthlyIncome }],
+      });
+    }
+  }
+
   return entries;
 }
 

@@ -275,6 +275,46 @@ export default function Dashboard() {
                   </div>
                 </div>
               )}
+
+              {/* Sublease Information */}
+              {selectedLease.subleases && selectedLease.subleases.length > 0 && (
+                <div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-4">Subleases</h3>
+                  <div className="space-y-4">
+                    {selectedLease.subleases.map((sublease, index) => (
+                      <div key={index} className="border border-gray-200 rounded-lg p-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                          <div>
+                            <h4 className="font-medium text-gray-900">{sublease.sublesseeName}</h4>
+                            <p className="text-sm text-gray-600">{sublease.description || 'No description'}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-gray-700">Period</p>
+                            <p className="text-sm text-gray-600">{sublease.startDate} to {sublease.endDate}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-gray-700">Monthly Income</p>
+                            <p className="text-sm text-gray-600">{formatCurrency(sublease.monthlyIncome || 0)}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-gray-700">Security Deposit</p>
+                            <p className="text-sm text-gray-600">
+                              {sublease.securityDeposit ? formatCurrency(sublease.securityDeposit) : 'None'}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-4 bg-green-50 rounded-lg p-4">
+                    <p className="text-sm text-green-800">
+                      <strong>Total Monthly Sublease Income:</strong> {formatCurrency(
+                        selectedLease.subleases.reduce((sum, sublease) => sum + (sublease.monthlyIncome || 0), 0)
+                      )}
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}

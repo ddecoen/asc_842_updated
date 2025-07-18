@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { leaseSchema, LeaseInput } from '@/lib/validation';
-import { PaymentSchedule, PreASC842Payment } from '@/lib/types';
+import { PaymentSchedule, PreASC842Payment, Sublease } from '@/lib/types';
 
 interface LeaseFormProps {
   onSubmit: (data: LeaseInput) => Promise<void>;
@@ -26,6 +26,7 @@ export default function LeaseForm({ onSubmit, onCancel, loading = false }: Lease
   
   const [paymentSchedule, setPaymentSchedule] = useState<PaymentSchedule[]>([]);
   const [preASC842Payments, setPreASC842Payments] = useState<PreASC842Payment[]>([]);
+  const [subleases, setSubleases] = useState<Sublease[]>([]);
   
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -38,6 +39,7 @@ export default function LeaseForm({ onSubmit, onCancel, loading = false }: Lease
       ...formData,
       ...(paymentType === 'variable' ? { paymentSchedule } : {}),
       ...(preASC842Payments.length > 0 ? { preASC842Payments } : {}),
+      ...(subleases.length > 0 ? { subleases } : {}),
     };
 
     const result = leaseSchema.safeParse(submitData);
@@ -95,6 +97,26 @@ export default function LeaseForm({ onSubmit, onCancel, loading = false }: Lease
 
   const removePreASC842Payment = (index: number) => {
     setPreASC842Payments(preASC842Payments.filter((_, i) => i !== index));
+  };
+
+  const addSublease = () => {
+    setSubleases([...subleases, {
+      sublesseeName: '',
+      startDate: '',
+      endDate: '',
+      monthlyIncome: 0,
+      description: '',
+    }]);
+  };
+
+  const updateSublease = (index: number, field: keyof Sublease, value: string | number) => {
+    const updated = [...subleases];
+    updated[index] = { ...updated[index], [field]: value };
+    setSubleases(updated);
+  };
+
+  const removeSublease = (index: number) => {
+    setSubleases(subleases.filter((_, i) => i !== index));
   };
 
   const handleChange = (field: string, value: string | number) => {
@@ -429,6 +451,112 @@ export default function LeaseForm({ onSubmit, onCancel, loading = false }: Lease
               ))}
               {preASC842Payments.length === 0 && (
                 <p className="text-gray-500 text-sm">No pre-ASC 842 payments recorded.</p>
+              )}
+            </div>
+
+            {/* Subleases */}
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h3 className="text-lg font-medium text-gray-900">Subleases</h3>
+                  <p className="text-sm text-gray-600">Track sublease income during the lease term (optional)</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={addSublease}
+                  className="bg-purple-600 text-white px-3 py-1 rounded-md text-sm hover:bg-purple-700"
+                >
+                  Add Sublease
+                </button>
+              </div>
+              {subleases.map((sublease, index) => (
+                <div key={index} className="border border-gray-200 rounded-md p-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Sublessee Name
+                      </label>
+                      <input
+                        type="text"
+                        value={sublease.sublesseeName}
+                        onChange={(e) => updateSublease(index, 'sublesseeName', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="Company or individual name"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Monthly Income ($)
+                      </label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={sublease.monthlyIncome}
+                        onChange={(e) => updateSublease(index, 'monthlyIncome', parseFloat(e.target.value) || 0)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Sublease Start Date
+                      </label>
+                      <input
+                        type="date"
+                        value={sublease.startDate}
+                        onChange={(e) => updateSublease(index, 'startDate', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Sublease End Date
+                      </label>
+                      <input
+                        type="date"
+                        value={sublease.endDate}
+                        onChange={(e) => updateSublease(index, 'endDate', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Security Deposit ($)
+                      </label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={sublease.securityDeposit || ''}
+                        onChange={(e) => updateSublease(index, 'securityDeposit', parseFloat(e.target.value) || 0)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="Optional"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Description (Optional)
+                      </label>
+                      <input
+                        type="text"
+                        value={sublease.description || ''}
+                        onChange={(e) => updateSublease(index, 'description', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="e.g., Office space sublease"
+                      />
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => removeSublease(index)}
+                    className="mt-2 text-red-600 text-sm hover:text-red-800"
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
+              {subleases.length === 0 && (
+                <p className="text-gray-500 text-sm">No subleases recorded.</p>
               )}
             </div>
             
