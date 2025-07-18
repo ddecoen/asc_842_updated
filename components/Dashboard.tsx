@@ -1,13 +1,11 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useAuth } from './AuthContext';
 import { Lease, JournalEntry } from '@/lib/types';
 import { LeaseInput } from '@/lib/validation';
 import LeaseForm from './LeaseForm';
 
 export default function Dashboard() {
-  const { user, logout, getToken } = useAuth();
   const [leases, setLeases] = useState<Lease[]>([]);
   const [selectedLease, setSelectedLease] = useState<Lease | null>(null);
   const [journalEntries, setJournalEntries] = useState<JournalEntry[]>([]);
@@ -17,12 +15,7 @@ export default function Dashboard() {
 
   const fetchLeases = useCallback(async () => {
     try {
-      const token = await getToken();
-      if (!token) return;
-
-      const response = await fetch('/api/leases', {
-        headers: { 'Authorization': `Bearer ${token}` },
-      });
+      const response = await fetch('/api/leases');
 
       if (response.ok) {
         const data = await response.json();
@@ -31,7 +24,7 @@ export default function Dashboard() {
     } catch {
       setError('Failed to fetch leases');
     }
-  }, [getToken]);
+  }, []);
 
   useEffect(() => {
     fetchLeases();
@@ -39,12 +32,7 @@ export default function Dashboard() {
 
   const fetchJournalEntries = async (leaseId: string) => {
     try {
-      const token = await getToken();
-      if (!token) return;
-
-      const response = await fetch(`/api/journal-entries?leaseId=${leaseId}`, {
-        headers: { 'Authorization': `Bearer ${token}` },
-      });
+      const response = await fetch(`/api/journal-entries?leaseId=${leaseId}`);
 
       if (response.ok) {
         const data = await response.json();
@@ -58,14 +46,10 @@ export default function Dashboard() {
   const handleCreateLease = async (leaseData: LeaseInput) => {
     setLoading(true);
     try {
-      const token = await getToken();
-      if (!token) throw new Error('Not authenticated');
-
       const response = await fetch('/api/leases', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify(leaseData),
       });
@@ -114,7 +98,7 @@ export default function Dashboard() {
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">ASC 842 Lease Accounting</h1>
-            <p className="text-gray-600">Welcome, {user?.email}</p>
+            <p className="text-gray-600">Welcome to ASC 842 Lease Accounting</p>
           </div>
           <div className="space-x-4">
             <button
@@ -123,12 +107,7 @@ export default function Dashboard() {
             >
               New Lease
             </button>
-            <button
-              onClick={logout}
-              className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700"
-            >
-              Logout
-            </button>
+
           </div>
         </div>
 

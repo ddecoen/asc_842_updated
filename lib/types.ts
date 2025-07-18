@@ -2,7 +2,7 @@
 
 export interface Lease {
   id?: string;
-  userId: string;
+  userId?: string;
   name: string;
   startDate: string;
   endDate: string;
