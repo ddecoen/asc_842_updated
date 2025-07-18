@@ -142,7 +142,7 @@ export default function Dashboard() {
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Start Date</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">End Date</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Monthly Payment</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment Structure</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                   </thead>
@@ -152,7 +152,25 @@ export default function Dashboard() {
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{lease.name}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{lease.startDate}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{lease.endDate}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatCurrency(lease.monthlyPayment)}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {lease.paymentSchedule && lease.paymentSchedule.length > 0 ? (
+                            <div>
+                              <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">Variable</span>
+                              <div className="text-xs text-gray-500 mt-1">
+                                {lease.paymentSchedule.length} year{lease.paymentSchedule.length > 1 ? 's' : ''} defined
+                              </div>
+                            </div>
+                          ) : lease.monthlyPayment ? (
+                            <div>
+                              <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Fixed</span>
+                              <div className="text-xs text-gray-500 mt-1">
+                                {formatCurrency(lease.monthlyPayment)}/month
+                              </div>
+                            </div>
+                          ) : (
+                            <span className="text-gray-400">Not defined</span>
+                          )}
+                        </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           <button
                             onClick={() => handleViewEntries(lease)}
@@ -169,6 +187,97 @@ export default function Dashboard() {
             )}
           </div>
         </div>
+
+        {/* Lease Details */}
+        {selectedLease && (
+          <div className="bg-white shadow rounded-lg">
+            <div className="px-6 py-4 border-b">
+              <h2 className="text-xl font-semibold">Lease Details - {selectedLease.name}</h2>
+            </div>
+            <div className="p-6 space-y-6">
+              {/* Payment Schedule */}
+              <div>
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Payment Schedule</h3>
+                {selectedLease.paymentSchedule && selectedLease.paymentSchedule.length > 0 ? (
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Year</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Monthly Payment</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Period</th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {selectedLease.paymentSchedule.map((schedule, index) => (
+                          <tr key={index}>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{schedule.year}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatCurrency(schedule.monthlyPayment)}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                              {schedule.startMonth && schedule.endMonth 
+                                ? `Months ${schedule.startMonth}-${schedule.endMonth}`
+                                : schedule.startMonth 
+                                ? `From month ${schedule.startMonth}`
+                                : schedule.endMonth 
+                                ? `Until month ${schedule.endMonth}`
+                                : 'Full year'
+                              }
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : selectedLease.monthlyPayment ? (
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <p className="text-sm text-gray-600">Fixed monthly payment: <span className="font-semibold">{formatCurrency(selectedLease.monthlyPayment)}</span></p>
+                  </div>
+                ) : (
+                  <p className="text-gray-500">No payment schedule defined.</p>
+                )}
+              </div>
+
+              {/* Pre-ASC 842 Payments */}
+              {selectedLease.preASC842Payments && selectedLease.preASC842Payments.length > 0 && (
+                <div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-4">Pre-ASC 842 Payments</h3>
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {selectedLease.preASC842Payments.map((payment, index) => (
+                          <tr key={index}>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{payment.date}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatCurrency(payment.amount)}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{payment.description || '-'}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  <div className="mt-4 bg-blue-50 rounded-lg p-4">
+                    <p className="text-sm text-blue-800">
+                      <strong>Total Pre-ASC 842 Payments:</strong> {formatCurrency(
+                        selectedLease.preASC842Payments.reduce((sum, payment) => sum + payment.amount, 0)
+                      )}
+                    </p>
+                    {selectedLease.asc842AdoptionDate && (
+                      <p className="text-sm text-blue-600 mt-1">
+                        ASC 842 Adoption Date: {selectedLease.asc842AdoptionDate}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Journal Entries */}
         {selectedLease && (

@@ -1,16 +1,35 @@
 // Simplified types for ASC 842 lease accounting
 
+export interface PaymentSchedule {
+  year: number;
+  monthlyPayment: number;
+  startMonth?: number; // Month within the year (1-12)
+  endMonth?: number;   // Month within the year (1-12)
+}
+
+export interface PreASC842Payment {
+  date: string;
+  amount: number;
+  description?: string;
+}
+
 export interface Lease {
   id?: string;
   userId?: string;
   name: string;
   startDate: string;
   endDate: string;
-  monthlyPayment: number;
+  // Legacy field for backward compatibility
+  monthlyPayment?: number;
+  // New variable payment structure
+  paymentSchedule?: PaymentSchedule[];
   discountRate: number;
   prepaidRent?: number;
   initialCosts?: number;
   incentives?: number;
+  // Pre-ASC 842 payments
+  preASC842Payments?: PreASC842Payment[];
+  asc842AdoptionDate?: string;
   createdAt?: string;
 }
 
