@@ -1,36 +1,99 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ASC 842 Lease Accounting - Simplified
 
-## Getting Started
+A clean, simple ASC 842 lease accounting application built with Next.js 14, Firebase, and TypeScript.
 
-First, run the development server:
+## Features
+
+- ✅ ASC 842 compliant lease calculations
+- ✅ Firebase Authentication (email/password)
+- ✅ Firestore database for lease storage
+- ✅ Automated journal entry generation
+- ✅ Simple, responsive UI
+- ✅ Easy Vercel deployment
+
+## Quick Setup
+
+### 1. Environment Variables
+
+Copy `.env.example` to `.env.local` and fill in your Firebase values:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cp .env.example .env.local
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+**Required variables:**
+```
+FIREBASE_API_KEY=AIzaSyDTlUJNYuBF7K_nIM8Zhg9XS4XZIIhqYwM
+FIREBASE_AUTH_DOMAIN=asc-842-lease-accounting.firebaseapp.com
+FIREBASE_PROJECT_ID=asc-842-lease-accounting
+FIREBASE_STORAGE_BUCKET=asc-842-lease-accounting.firebasestorage.app
+FIREBASE_MESSAGING_SENDER_ID=143057481221
+FIREBASE_APP_ID=1:143057481221:web:8056ee8085bb972b3eb66c
+FIREBASE_CLIENT_EMAIL=your_service_account_email
+FIREBASE_PRIVATE_KEY="your_private_key_with_newlines"
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 2. Install and Run
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm install
+npm run dev
+```
 
-## Learn More
+### 3. Deploy to Vercel
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+# Install Vercel CLI
+npm i -g vercel
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# Deploy
+vercel
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# Add environment variables to Vercel
+vercel env add FIREBASE_API_KEY
+vercel env add FIREBASE_AUTH_DOMAIN
+# ... add all variables
 
-## Deploy on Vercel
+# Deploy to production
+vercel --prod
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Firebase Setup
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. **Create Firebase Project**: [console.firebase.google.com](https://console.firebase.google.com)
+2. **Enable Authentication**: Email/Password sign-in method
+3. **Create Firestore Database**: Start in production mode
+4. **Generate Service Account**: Project Settings → Service Accounts → Generate Key
+5. **Get Web Config**: Project Settings → General → Web App
+
+## Firestore Security Rules
+
+```javascript
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /leases/{leaseId} {
+      allow read, write: if request.auth != null && request.auth.uid == resource.data.userId;
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+    }
+  }
+}
+```
+
+## API Endpoints
+
+- `GET /api/leases` - Get user's leases
+- `POST /api/leases` - Create new lease
+- `GET /api/journal-entries?leaseId=xxx` - Get journal entries for lease
+
+## Tech Stack
+
+- **Next.js 14** with App Router
+- **TypeScript** for type safety
+- **Firebase** for auth and database
+- **TailwindCSS** for styling
+- **Zod** for validation
+
+## Deployment
+
+This app is optimized for Vercel deployment with minimal configuration required.
