@@ -198,9 +198,11 @@ export default function LeaseForm({ onSubmit, onCancel, loading = false }: Lease
                   Payment Structure *
                 </label>
                 <div className="flex gap-4">
-                  <label className="flex items-center">
+                  <label htmlFor="payment-type-fixed" className="flex items-center">
                     <input
                       type="radio"
+                      id="payment-type-fixed"
+                      name="paymentType"
                       value="fixed"
                       checked={paymentType === 'fixed'}
                       onChange={(e) => setPaymentType(e.target.value as 'fixed' | 'variable')}
@@ -208,9 +210,11 @@ export default function LeaseForm({ onSubmit, onCancel, loading = false }: Lease
                     />
                     Fixed Monthly Payment
                   </label>
-                  <label className="flex items-center">
+                  <label htmlFor="payment-type-variable" className="flex items-center">
                     <input
                       type="radio"
+                      id="payment-type-variable"
+                      name="paymentType"
                       value="variable"
                       checked={paymentType === 'variable'}
                       onChange={(e) => setPaymentType(e.target.value as 'fixed' | 'variable')}
