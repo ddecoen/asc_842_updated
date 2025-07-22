@@ -2,6 +2,7 @@
 
 A comprehensive ASC 842 lease accounting application with advanced features for variable payments, pre-ASC 842 tracking, and sublease management. **Supports flexible payment terms that can span calendar years** (e.g., 7/1/25 to 6/30/26), accommodating any lease structure from traditional calendar years to complex multi-year periods. Built with Next.js 15, TypeScript, and modern web technologies.
 
+Note: When trying to save to Firestore Database - turn the rules to "if true"
 
 ## 🚀 Features
 
