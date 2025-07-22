@@ -1,10 +1,18 @@
 import { z } from 'zod';
 
 const paymentScheduleSchema = z.object({
-  year: z.number().int().min(2000).max(2100),
+  startDate: z.string().min(1, 'Start date is required'),
+  endDate: z.string().min(1, 'End date is required'),
   monthlyPayment: z.number().positive('Monthly payment must be positive'),
+  // Legacy fields for backward compatibility
+  year: z.number().int().min(2000).max(2100).optional(),
   startMonth: z.number().int().min(1).max(12).optional(),
   endMonth: z.number().int().min(1).max(12).optional(),
+}).refine((data) => {
+  return new Date(data.endDate) > new Date(data.startDate);
+}, {
+  message: 'End date must be after start date',
+  path: ['endDate'],
 });
 
 const preASC842PaymentSchema = z.object({

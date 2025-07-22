@@ -64,14 +64,17 @@ export default function LeaseForm({ onSubmit, onCancel, loading = false }: Lease
   };
 
   const addPaymentSchedule = () => {
-    const currentYear = new Date().getFullYear();
+    const today = new Date();
+    const startDate = today.toISOString().split('T')[0];
+    const endDate = new Date(today.getFullYear() + 1, today.getMonth(), today.getDate()).toISOString().split('T')[0];
     setPaymentSchedule([...paymentSchedule, {
-      year: currentYear,
+      startDate,
+      endDate,
       monthlyPayment: 0,
     }]);
   };
 
-  const updatePaymentSchedule = (index: number, field: keyof PaymentSchedule, value: number | undefined) => {
+  const updatePaymentSchedule = (index: number, field: keyof PaymentSchedule, value: number | string | undefined) => {
     const updated = [...paymentSchedule];
     updated[index] = { ...updated[index], [field]: value };
     setPaymentSchedule(updated);
@@ -309,28 +312,37 @@ export default function LeaseForm({ onSubmit, onCancel, loading = false }: Lease
                     onClick={addPaymentSchedule}
                     className="bg-green-600 text-white px-3 py-1 rounded-md text-sm hover:bg-green-700"
                   >
-                    Add Year
+                    Add Payment Period
                   </button>
                 </div>
                 {paymentSchedule.map((schedule, index) => (
                   <div key={index} className="border border-gray-200 rounded-md p-4">
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Year
+                          Start Date *
                         </label>
                         <input
-                          type="number"
-                          min="2000"
-                          max="2100"
-                          value={schedule.year}
-                          onChange={(e) => updatePaymentSchedule(index, 'year', parseInt(e.target.value) || 0)}
+                          type="date"
+                          value={schedule.startDate || ''}
+                          onChange={(e) => updatePaymentSchedule(index, 'startDate', e.target.value)}
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                         />
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Monthly Payment ($)
+                          End Date *
+                        </label>
+                        <input
+                          type="date"
+                          value={schedule.endDate || ''}
+                          onChange={(e) => updatePaymentSchedule(index, 'endDate', e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Monthly Payment ($) *
                         </label>
                         <input
                           type="number"
@@ -339,34 +351,6 @@ export default function LeaseForm({ onSubmit, onCancel, loading = false }: Lease
                           value={schedule.monthlyPayment}
                           onChange={(e) => updatePaymentSchedule(index, 'monthlyPayment', parseFloat(e.target.value) || 0)}
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Start Month (Optional)
-                        </label>
-                        <input
-                          type="number"
-                          min="1"
-                          max="12"
-                          value={schedule.startMonth || ''}
-                          onChange={(e) => updatePaymentSchedule(index, 'startMonth', parseInt(e.target.value) || undefined)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                          placeholder="1-12"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          End Month (Optional)
-                        </label>
-                        <input
-                          type="number"
-                          min="1"
-                          max="12"
-                          value={schedule.endMonth || ''}
-                          onChange={(e) => updatePaymentSchedule(index, 'endMonth', parseInt(e.target.value) || undefined)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                          placeholder="1-12"
                         />
                       </div>
                     </div>
@@ -380,7 +364,7 @@ export default function LeaseForm({ onSubmit, onCancel, loading = false }: Lease
                   </div>
                 ))}
                 {paymentSchedule.length === 0 && (
-                  <p className="text-gray-500 text-sm">No payment schedule defined. Click &quot;Add Year&quot; to start.</p>
+                  <p className="text-gray-500 text-sm">No payment schedule defined. Click &quot;Add Payment Period&quot; to start.</p>
                 )}
               </div>
             )}

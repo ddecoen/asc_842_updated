@@ -14,27 +14,52 @@ export function getPaymentForMonth(lease: Lease, monthIndex: number): number {
   const startDate = new Date(lease.startDate);
   const currentDate = new Date(startDate);
   currentDate.setMonth(currentDate.getMonth() + monthIndex);
-  const currentYear = currentDate.getFullYear();
-  const currentMonth = currentDate.getMonth() + 1; // 1-12
   
-  // Find the payment schedule for this year
-  const yearSchedule = lease.paymentSchedule.find(schedule => schedule.year === currentYear);
-  if (!yearSchedule) {
-    // If no schedule for this year, use the last available schedule
-    const sortedSchedules = lease.paymentSchedule.sort((a, b) => a.year - b.year);
-    const lastSchedule = sortedSchedules[sortedSchedules.length - 1];
-    return lastSchedule?.monthlyPayment || 0;
+  // Find the payment schedule that applies to this date
+  for (const schedule of lease.paymentSchedule) {
+    // Check if this is a new date-based schedule
+    if (schedule.startDate && schedule.endDate) {
+      const scheduleStart = new Date(schedule.startDate);
+      const scheduleEnd = new Date(schedule.endDate);
+      
+      // Check if current date falls within this payment schedule period
+      if (currentDate >= scheduleStart && currentDate <= scheduleEnd) {
+        return schedule.monthlyPayment;
+      }
+    }
+    // Legacy year-based schedule support
+    else if (schedule.year) {
+      const currentYear = currentDate.getFullYear();
+      const currentMonth = currentDate.getMonth() + 1; // 1-12
+      
+      if (schedule.year === currentYear) {
+        // Check if current month is within the specified range (if any)
+        if (schedule.startMonth && currentMonth < schedule.startMonth) {
+          continue;
+        }
+        if (schedule.endMonth && currentMonth > schedule.endMonth) {
+          continue;
+        }
+        return schedule.monthlyPayment;
+      }
+    }
   }
   
-  // Check if current month is within the specified range (if any)
-  if (yearSchedule.startMonth && currentMonth < yearSchedule.startMonth) {
+  // If no matching schedule found, try to use the last available schedule
+  const sortedSchedules = lease.paymentSchedule.sort((a, b) => {
+    if (a.startDate && b.startDate) {
+      return new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
+    }
+    if (a.year && b.year) {
+      return a.year - b.year;
+    }
+    // Mixed types, prioritize date-based
+    if (a.startDate) return 1;
+    if (b.startDate) return -1;
     return 0;
-  }
-  if (yearSchedule.endMonth && currentMonth > yearSchedule.endMonth) {
-    return 0;
-  }
-  
-  return yearSchedule.monthlyPayment;
+  });
+  const lastSchedule = sortedSchedules[sortedSchedules.length - 1];
+  return lastSchedule?.monthlyPayment || 0;
 }
 
 // Calculate present value of variable lease payments

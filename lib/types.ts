@@ -1,8 +1,11 @@
 // Simplified types for ASC 842 lease accounting
 
 export interface PaymentSchedule {
-  year: number;
+  startDate: string;   // ISO date string (YYYY-MM-DD)
+  endDate: string;     // ISO date string (YYYY-MM-DD)
   monthlyPayment: number;
+  // Legacy fields for backward compatibility
+  year?: number;
   startMonth?: number; // Month within the year (1-12)
   endMonth?: number;   // Month within the year (1-12)
 }
