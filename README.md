@@ -1,6 +1,7 @@
 # ASC 842 Lease Accounting - Enhanced
 
-A comprehensive ASC 842 lease accounting application with advanced features for variable payments, pre-ASC 842 tracking, and sublease management. Built with Next.js 15, TypeScript, and modern web technologies.
+A comprehensive ASC 842 lease accounting application with advanced features for variable payments, pre-ASC 842 tracking, and sublease management. **Supports flexible payment terms that can span calendar years** (e.g., 7/1/25 to 6/30/26), accommodating any lease structure from traditional calendar years to complex multi-year periods. Built with Next.js 15, TypeScript, and modern web technologies.
+
 
 ## 🚀 Features
 
@@ -11,9 +12,11 @@ A comprehensive ASC 842 lease accounting application with advanced features for 
 - ✅ **Lease liability management** - Interest and principal payment tracking
 
 ### Advanced Payment Structures
-- ✅ **Variable lease payments** - Year-based payment schedules with automatic increases
+- ✅ **Calendar year spanning payment terms** - Set up lease payments that span across calendar years (e.g., 7/1/25 to 6/30/26)
+- ✅ **Variable lease payments** - Flexible payment schedules with automatic increases
 - ✅ **Fixed payment support** - Traditional monthly payment structures
-- ✅ **Payment period flexibility** - Specify start/end months within years
+- ✅ **Multi-year lease terms** - Support for lease periods spanning multiple years
+- ✅ **Payment period flexibility** - Specify exact start/end dates for any payment period
 - ✅ **Present value calculations** - Accurate NPV for variable payment streams
 
 ### Pre-ASC 842 Tracking
@@ -57,7 +60,28 @@ npm run build
 npm start
 ```
 
+## 🗓️ Calendar Year Spanning Payment Terms
+
+This application excels at handling **payment terms that span across calendar years**, making it perfect for:
+
+### Common Scenarios:
+- **Fiscal year leases** - July 1st to June 30th payment periods
+- **Academic year leases** - September to August terms
+- **Seasonal businesses** - Custom periods aligned with business cycles
+- **Multi-year agreements** - Long-term leases with varying payment schedules
+
+### Key Benefits:
+- ✅ **Flexible date ranges** - Set any start and end dates (e.g., 7/1/25 to 6/30/26)
+- ✅ **Automatic calculations** - Proper present value calculations across date boundaries
+- ✅ **ASC 842 compliance** - Accurate accounting regardless of payment period structure
+- ✅ **Real-world alignment** - Match your actual lease terms, not forced calendar years
+
 ## 📊 Usage Examples
+### Calendar Year Spanning Payment Terms
+Lease Term: July 1, 2025 to June 30, 2028
+Period 1: 7/1/25 to 6/30/26 - $8,000/month (Year 1)
+Period 2: 7/1/26 to 6/30/27 - $8,400/month (Year 2 - 5% increase)
+Period 3: 7/1/27 to 6/30/28 - $8,820/month (Year 3 - 5% increase)
 
 ### Variable Payment Lease
 ```
