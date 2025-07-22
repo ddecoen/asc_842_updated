@@ -78,10 +78,12 @@ This application excels at handling **payment terms that span across calendar ye
 
 ## 📊 Usage Examples
 ### Calendar Year Spanning Payment Terms
+```
 Lease Term: July 1, 2025 to June 30, 2028
 Period 1: 7/1/25 to 6/30/26 - $8,000/month (Year 1)
 Period 2: 7/1/26 to 6/30/27 - $8,400/month (Year 2 - 5% increase)
 Period 3: 7/1/27 to 6/30/28 - $8,820/month (Year 3 - 5% increase)
+```
 
 ### Variable Payment Lease
 ```
