@@ -1,5 +1,5 @@
-import { initializeApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
+import { initializeApp, FirebaseApp } from 'firebase/app';
+import { getFirestore, Firestore } from 'firebase/firestore';
 
 // Your Firebase configuration
 // Replace these with your actual Firebase project credentials
@@ -29,8 +29,8 @@ if (missingVars.length > 0) {
 }
 
 // Initialize Firebase
-let app;
-let db;
+let app: FirebaseApp;
+let db: Firestore;
 
 try {
   app = initializeApp(firebaseConfig);
